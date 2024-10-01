@@ -7,5 +7,5 @@ passlib
 uvicorn
 bcrypt
 pyJWT
-jose
+python-jose
 python-multipart
