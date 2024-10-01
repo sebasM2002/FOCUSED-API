@@ -14,33 +14,30 @@ admin_router = APIRouter(
 )
 
 @admin_router.post("/", summary = "Create User")
-async def create_admin(usuario: UsuarioCreate, db: AsyncSession = Depends(get_db), current_user: UsuarioCreate = Depends(get_current_user)):
-    if(current_user.id_rol != 0):
-        raise HTTPException(status_code=404, detail ="You cannot access this functionality.")
-    else:
-        hashed_password = hash_ps((usuario.password))
-        actions = "I"
-        new_user = Usuario(nombre=usuario.nombre, email=usuario.email, password=hashed_password, id_rol=usuario.id_rol)
+async def create_users(usuario: UsuarioCreate, db: AsyncSession = Depends(get_db)):
+    hashed_password = hash_ps((usuario.password))
+    actions = "I"
+    new_user = Usuario(nombre=usuario.nombre, email=usuario.email, password=hashed_password, id_rol=usuario.id_rol)
 
-        try:
-            await db.execute(
-                text("CALL p_usuario_actions(:v_id, :v_actions, :v_nombre, :v_email, :v_password, :v_role)"),
-                {
-                    "v_id": new_user.id,  
-                    "v_actions": actions,
-                    "v_nombre": new_user.nombre,
-                    "v_email": new_user.email,
-                    "v_password": new_user.password,
-                    "v_role": new_user.id_rol
-                }
-            )
-            await db.commit()
-            return {"message": "User created successfully"}
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=str(e))
+    try:
+        await db.execute(
+            text("CALL p_usuario_actions(:v_id, :v_actions, :v_nombre, :v_email, :v_password, :v_role)"),
+            {
+                "v_id": new_user.id,  
+                "v_actions": actions,
+                "v_nombre": new_user.nombre,
+                "v_email": new_user.email,
+                "v_password": new_user.password,
+                "v_role": new_user.id_rol
+            }
+        )
+        await db.commit()
+        return {"message": "User created successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @admin_router.get("/", summary = "Get Users")
-async def get_admins(db: AsyncSession = Depends(get_db), current_user: UsuarioCreate = Depends(get_current_user)):
+async def get_users(db: AsyncSession = Depends(get_db), current_user: UsuarioCreate = Depends(get_current_user)):
     if(current_user.id_rol != 0):
         raise HTTPException(status_code=404, detail ="You cannot access this functionality.")
     else:
@@ -56,7 +53,7 @@ async def get_admins(db: AsyncSession = Depends(get_db), current_user: UsuarioCr
             raise HTTPException(status_code=500, detail=str(e))
 
 @admin_router.get("/{user_id}", summary = "Get one User by ID")
-async def get_admin(user_id: int, db: AsyncSession = Depends(get_db) , current_user: UsuarioCreate = Depends(get_current_user)):
+async def get_user(user_id: int, db: AsyncSession = Depends(get_db) , current_user: UsuarioCreate = Depends(get_current_user)):
     if(current_user.id_rol != 0):
         raise HTTPException(status_code=404, detail ="You cannot access this functionality.")
     else:
@@ -82,7 +79,7 @@ async def get_admin(user_id: int, db: AsyncSession = Depends(get_db) , current_u
 
 
 @admin_router.put("/{user_id}", summary = "Update User")
-async def update_admin(usuario:UsuarioEdit, db: AsyncSession = Depends(get_db) , current_user: UsuarioCreate = Depends(get_current_user)):
+async def update_user(usuario:UsuarioEdit, db: AsyncSession = Depends(get_db) , current_user: UsuarioCreate = Depends(get_current_user)):
     if(current_user.id_rol != 0):
         raise HTTPException(status_code=404, detail ="You cannot access this functionality.")
     else:
@@ -123,7 +120,7 @@ async def update_admin(usuario:UsuarioEdit, db: AsyncSession = Depends(get_db) ,
     
     
 @admin_router.delete("/{user_id}", summary = "Delete a user")
-async def delete_admin(user: UsuarioDelete, db: AsyncSession = Depends(get_db) , current_user: UsuarioCreate = Depends(get_current_user)):
+async def delete_user(user: UsuarioDelete, db: AsyncSession = Depends(get_db) , current_user: UsuarioCreate = Depends(get_current_user)):
     if(current_user.id_rol != 0):
         raise HTTPException(status_code=404, detail ="You cannot access this functionality.")
     else:
