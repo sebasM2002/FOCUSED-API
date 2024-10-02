@@ -10,3 +10,4 @@ pyJWT
 python-jose
 python-multipart
 python-dotenv
+mangum
