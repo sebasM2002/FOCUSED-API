@@ -9,7 +9,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.database import get_db
 from typing import Optional
-from models.Pydantic.usuario import UsuarioCreate
+from models.Pydantic.usuario_Py import UsuarioCreate
 
 
 SECRET_KEY = secrets.token_hex(32)

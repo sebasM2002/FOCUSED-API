@@ -14,7 +14,10 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, clas
 Base = declarative_base()
 
 async def get_db():
-    async with SessionLocal() as session:
-        yield session
+    db = AsyncSession(engine)
+    try:
+        yield db
+    finally:
+        await db.close()
 
 

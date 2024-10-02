@@ -3,9 +3,9 @@ from fastapi.security import  OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.database import get_db
-from models.SqlAlchemy.usuario import Usuario
+from models.SqlAlchemy.usuario_SQL import Usuario
 from datetime import timedelta, datetime
-from models.Pydantic.usuario import UsuarioEdit, UsuarioCreate, UsuarioDelete, UsuarioBase, Token
+from models.Pydantic.usuario_Py import UsuarioEdit, UsuarioCreate, UsuarioDelete, UsuarioBase, Token
 from functions.encrpytion import hash_password as hash_ps ,verify_password as pass_verify, pwd_context, oauth2_scheme, authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_current_user
 
 admin_router = APIRouter(
@@ -39,14 +39,14 @@ async def create_users(usuario: UsuarioCreate, db: AsyncSession = Depends(get_db
 @admin_router.get("/", summary = "Get Users")
 async def get_users(db: AsyncSession = Depends(get_db), current_user: UsuarioCreate = Depends(get_current_user)):
     if(current_user.id_rol != 0):
-        raise HTTPException(status_code=404, detail ="You cannot access this functionality.")
+        raise HTTPException( detail ="You cannot access this functionality.")
     else:
         try:
             result = await db.execute(select(Usuario))
             admin = result.scalars().all()
             
             if not admin:
-                raise HTTPException(status_code=404, detail="No user found")
+                raise HTTPException(detail="No user found")
             
             return admin
         except Exception as e:
@@ -55,7 +55,7 @@ async def get_users(db: AsyncSession = Depends(get_db), current_user: UsuarioCre
 @admin_router.get("/{user_id}", summary = "Get one User by ID")
 async def get_user(user_id: int, db: AsyncSession = Depends(get_db) , current_user: UsuarioCreate = Depends(get_current_user)):
     if(current_user.id_rol != 0):
-        raise HTTPException(status_code=404, detail ="You cannot access this functionality.")
+        raise HTTPException(detail ="You cannot access this functionality.")
     else:
         try:
             result = await db.execute(
@@ -81,7 +81,7 @@ async def get_user(user_id: int, db: AsyncSession = Depends(get_db) , current_us
 @admin_router.put("/{user_id}", summary = "Update User")
 async def update_user(usuario:UsuarioEdit, db: AsyncSession = Depends(get_db) , current_user: UsuarioCreate = Depends(get_current_user)):
     if(current_user.id_rol != 0):
-        raise HTTPException(status_code=404, detail ="You cannot access this functionality.")
+        raise HTTPException(detail ="You cannot access this functionality.")
     else:
         try:
             result = await db.execute(
@@ -122,7 +122,7 @@ async def update_user(usuario:UsuarioEdit, db: AsyncSession = Depends(get_db) , 
 @admin_router.delete("/{user_id}", summary = "Delete a user")
 async def delete_user(user: UsuarioDelete, db: AsyncSession = Depends(get_db) , current_user: UsuarioCreate = Depends(get_current_user)):
     if(current_user.id_rol != 0):
-        raise HTTPException(status_code=404, detail ="You cannot access this functionality.")
+        raise HTTPException(detail ="You cannot access this functionality.")
     else:
         actions = "D"
         try:
@@ -155,12 +155,12 @@ async def login(user: UsuarioBase, db: AsyncSession = Depends(get_db)):
     newUser = result.fetchone()
 
     if not user:
-        raise HTTPException(status_code=400, detail="Invalid username or password")
+        raise HTTPException(detail="Invalid username or password")
 
     hashed_password = newUser.password
 
     if not pass_verify(user.password, hashed_password):
-        raise HTTPException(status_code=400, detail="Invalid username or password")
+        raise HTTPException(detail="Invalid username or password")
 
     return {"msg": "Login successful"}
 
